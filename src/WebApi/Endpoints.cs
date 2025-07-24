@@ -53,7 +53,9 @@ public static class Endpoints
             (IDepthChartManager depthChartManager) =>
         {
             string depthChart = depthChartManager.GetFullDepthChart();
-            return Results.Ok(depthChart);
+            return Results.Content(depthChart, contentType: "text/plain");
+
+            // return Results.Ok(depthChart);
         });
     }
 }
