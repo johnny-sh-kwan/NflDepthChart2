@@ -17,10 +17,6 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-//builder.Services.AddOpenApi();
-
 // register services from the Application project
 builder.Services.AddApplicationServices();
 

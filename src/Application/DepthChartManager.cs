@@ -5,11 +5,21 @@ namespace Application;
 
 public class DepthChartManager : IDepthChartManager
 {
+    private readonly ILiteDbRepo _liteDbRepo;
+
     public DepthChart DepthChart { get; init; }
 
-    public DepthChartManager()
+    public DepthChartManager(ILiteDbRepo liteDbRepo)
     {
-        DepthChart = new();
+        _liteDbRepo = liteDbRepo;
+
+        // Load the depth chart from the database
+        DepthChart = liteDbRepo.Load();
+        if (DepthChart == null)
+        {
+            Console.WriteLine("No depth chart found in the database. Initializing a new one.");
+            DepthChart = new DepthChart();
+        }
     }
 
     public void AddPlayerToDepthChart(Position position, Player player, int depth = -1)
@@ -29,6 +39,8 @@ public class DepthChartManager : IDepthChartManager
             }
             else
                 DepthChart.Chart[position].Insert(depth, player);
+
+            _liteDbRepo.Save(DepthChart);
         }
         else
         {
@@ -42,6 +54,7 @@ public class DepthChartManager : IDepthChartManager
         if (DepthChart.Chart.ContainsKey(position) && DepthChart.Chart[position].Contains(player))
         {
             DepthChart.Chart[position].Remove(player);
+            _liteDbRepo.Save(DepthChart);
             return [player];
         }
         else
