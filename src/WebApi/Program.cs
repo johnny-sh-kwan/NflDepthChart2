@@ -1,4 +1,6 @@
+using Application.Extensions;
 using Microsoft.OpenApi.Models;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,10 @@ builder.Services.AddSwaggerGen(options =>
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 //builder.Services.AddOpenApi();
+
+// register services from the Application project
+builder.Services.AddApplicationServices();
+
 
 var app = builder.Build();
 
