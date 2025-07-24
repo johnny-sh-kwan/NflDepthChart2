@@ -5,7 +5,7 @@ namespace WebApi.Extensions;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApiServices(this IServiceCollection services)
     {
         services.AddScoped<Application.ILiteDbRepo, Infrastructure.LiteDbRepo>();
 

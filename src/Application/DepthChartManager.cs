@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.Json;
 using Domain;
 
 namespace Application;
@@ -94,5 +95,8 @@ public class DepthChartManager : IDepthChartManager
             sb.AppendLine(players);
         }
         return sb.ToString();
+
+        // or, we could return the serialized JSON
+         return JsonSerializer.Serialize(DepthChart.Chart);
     }
 }

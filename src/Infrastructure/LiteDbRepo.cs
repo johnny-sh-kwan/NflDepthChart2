@@ -11,7 +11,7 @@ public class LiteDbRepo : ILiteDbRepo
 
     public void Save(DepthChart depthChart)
     {
-        Console.WriteLine($"Saving DepthChart with {depthChart.Chart.Count} positions.");
+        Console.WriteLine($"Saving DepthChart with {depthChart.Chart.Count} positions.");        
 
         string dbPath = Path.Combine(Environment.CurrentDirectory, DbName);
 
@@ -22,6 +22,8 @@ public class LiteDbRepo : ILiteDbRepo
             // just delete all and insert new one, only 1 team for demo
             collection.DeleteAll();
             collection.Insert(depthChart);
+
+            Console.WriteLine($"DepthChart saved: {System.Text.Json.JsonSerializer.Serialize(depthChart.Chart)}");
         }
     }
 
