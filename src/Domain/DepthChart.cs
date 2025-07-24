@@ -4,9 +4,9 @@ namespace Domain;
 
 public class DepthChart
 {
-    public required Dictionary<Position, List<Player>> Chart { get; init; }
+    public Dictionary<Position, List<Player>> Chart { get; init; }
 
-    public DepthChart(string team, string formation, Player[] players)
+    public DepthChart()
     {
         Chart = new();
     }
