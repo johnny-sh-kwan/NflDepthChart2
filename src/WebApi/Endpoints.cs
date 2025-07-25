@@ -6,29 +6,6 @@ public static class Endpoints
 {
     public static void MapEndpoints(WebApplication app)
     {
-        var summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
-        app.MapGet("/weatherforecast", () =>
-        {
-            Console.WriteLine("weatherforecast 2");
-
-            var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-                .ToArray();
-            return forecast;
-        })
-        .WithName("GetWeatherForecast");
-
-
-
         app.MapPost("/DepthChart/AddPlayer",
             (Position position, string playerName, int playerNumber, int? depth, IDepthChartManager depthChartManager) =>
         {
@@ -49,6 +26,30 @@ public static class Endpoints
             }
         });
 
+        app.MapDelete("/DepthChart/RemovePlayer",
+            (Position position, string playerName, int playerNumber, IDepthChartManager depthChartManager) =>
+        {
+            Player player = new() { Name = playerName, Number = playerNumber };
+            List<Player> removedPlayers = depthChartManager.RemovePlayerFromDepthChart(position, player);
+
+            if (removedPlayers.Count > 0)
+                return Results.Ok($"Player {player.Name} removed from position {position}.");
+            else
+                return Results.NotFound($"Player {player.Name} not found at position {position}.");
+        });
+
+        app.MapGet("/DepthChart/GetBackups",
+            (Position position, string playerName, int playerNumber, IDepthChartManager depthChartManager) =>
+        {
+            Player player = new() { Name = playerName, Number = playerNumber };
+            List<Player> backups = depthChartManager.GetBackups(position, player);
+
+            if (backups.Count > 0)
+                return Results.Ok(backups);
+            else
+                return Results.NotFound($"No backups found for player {player.Name} at position {position}.");
+        });
+
         app.MapGet("/DepthChart",
             (IDepthChartManager depthChartManager) =>
         {
@@ -56,6 +57,22 @@ public static class Endpoints
             return Results.Content(depthChart, contentType: "text/plain");
 
             // return Results.Ok(depthChart);
+        });
+
+
+        // Not part of Spec, just for initializing the depth chart
+        app.MapPost("/DepthChart/MyInit",
+        (IDepthChartManager depthChartManager) =>
+        {
+            depthChartManager.MyInitDepthChart();
+            return Results.Ok("Depth chart initialized.");
+        });
+        
+        app.MapDelete("/DepthChart/MyClearAll",
+        (IDepthChartManager depthChartManager) =>
+        {
+            depthChartManager.MyClearAll();
+            return Results.Ok("Depth chart cleared.");
         });
     }
 }

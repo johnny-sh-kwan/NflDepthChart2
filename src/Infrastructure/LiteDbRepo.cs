@@ -4,6 +4,8 @@ using LiteDB;
 
 namespace Infrastructure;
 
+
+
 public class LiteDbRepo : ILiteDbRepo
 {
     private const string DbName = "MyLiteDb.db";
@@ -11,7 +13,7 @@ public class LiteDbRepo : ILiteDbRepo
 
     public void Save(DepthChart depthChart)
     {
-        Console.WriteLine($"Saving DepthChart with {depthChart.Chart.Count} positions.");        
+        Console.WriteLine($"Saving DepthChart with {depthChart.Chart.Count} positions.");
 
         string dbPath = Path.Combine(Environment.CurrentDirectory, DbName);
 
@@ -37,9 +39,15 @@ public class LiteDbRepo : ILiteDbRepo
         using (var db = new LiteDatabase(dbPath))
         {
             var collection = db.GetCollection<DepthChart>(DepthCharts);
-            return collection.FindAll().Count() == 0
-                ? new()
-                : collection.FindAll().First();
+
+            DepthChart output;
+            if (collection.FindAll().Count() == 0)
+                output = new();
+            else
+                output = collection.FindAll().First();
+
+            Console.WriteLine($"DepthChart loaded: {System.Text.Json.JsonSerializer.Serialize(output)}");
+            return output;
         }
     }
 }

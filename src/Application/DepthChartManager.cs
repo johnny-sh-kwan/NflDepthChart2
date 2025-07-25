@@ -8,7 +8,7 @@ public class DepthChartManager : IDepthChartManager
 {
     private readonly ILiteDbRepo _liteDbRepo;
 
-    public DepthChart DepthChart { get; init; }
+    public DepthChart DepthChart { get; private set; }
 
     public DepthChartManager(ILiteDbRepo liteDbRepo)
     {
@@ -52,9 +52,10 @@ public class DepthChartManager : IDepthChartManager
 
     public List<Player> RemovePlayerFromDepthChart(Position position, Player player)
     {
-        if (DepthChart.Chart.ContainsKey(position) && DepthChart.Chart[position].Contains(player))
+        if (DepthChart.Chart.ContainsKey(position)
+            && DepthChart.Chart[position].FirstOrDefault(p => p.Name == player.Name && p.Number == player.Number) is Player existingPlayer)
         {
-            DepthChart.Chart[position].Remove(player);
+            DepthChart.Chart[position].Remove(existingPlayer);
             _liteDbRepo.Save(DepthChart);
             return [player];
         }
@@ -74,13 +75,14 @@ public class DepthChartManager : IDepthChartManager
         }
 
         // Check if the player is in the depth chart at the specified position
-        if (!DepthChart.Chart[position].Contains(player))
+        Player? existingPlayer = DepthChart.Chart[position].FirstOrDefault(p => p.Name == player.Name && p.Number == player.Number);
+        if (existingPlayer == null)
         {
             Console.WriteLine($"Player {player.Name} is not in the depth chart at position {position}.");
             return [];
         }
 
-        int playerIndex = DepthChart.Chart[position].IndexOf(player);
+        int playerIndex = DepthChart.Chart[position].IndexOf(existingPlayer);
         return DepthChart.Chart[position].Skip(playerIndex + 1).ToList();
     }
 
@@ -97,6 +99,44 @@ public class DepthChartManager : IDepthChartManager
         return sb.ToString();
 
         // or, we could return the serialized JSON
-         return JsonSerializer.Serialize(DepthChart.Chart);
+        // return JsonSerializer.Serialize(DepthChart.Chart);
+    }
+
+    // Initialize the depth chart with some default values... not part of spec
+    public void MyInitDepthChart()
+    {
+        DepthChart = new()
+        {
+            Chart = new Dictionary<Position, List<Player>>
+            {
+                {
+                    Position.LWR, new()
+                    { new Player { Name = "Mike Evans", Number = 13 }, new Player { Name = "Jaelon Darden", Number = 11 }, new Player { Name = "Scott Miller", Number = 10 } }
+                },
+                //{ Position.RWR, new List<Player>() },
+                {
+                    Position.LT, new()
+                    { new Player { Name = "Donovan Smith", Number = 76 }, new Player { Name = "Josh Wells", Number = 72 } }
+                },
+                //{ Position.LG, new List<Player>() },
+                //{ Position.C, new List<Player>() },
+                //{ Position.RG, new List<Player>() },
+                //{ Position.RT, new List<Player>() },
+                //{ Position.TE1, new List<Player>() },
+                //{ Position.TE2, new List<Player>() },
+                { Position.QB, new()
+                    { new Player { Name = "Blaine Gabbert", Number = 11 } }
+                },
+                //{ Position.RB, new List<Player>() },            
+            }
+        };
+
+        _liteDbRepo.Save(DepthChart);
+    }
+    
+    public void MyClearAll()
+    {
+        DepthChart = new() { Chart = new Dictionary<Position, List<Player>>() };
+        _liteDbRepo.Save(DepthChart);
     }
 }
