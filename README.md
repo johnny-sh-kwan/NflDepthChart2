@@ -18,5 +18,3 @@ src/    domain
 tests/  UnitTests  
         IntegrationTests
 ```
-
-bump
